@@ -1,9 +1,7 @@
 package com.github.mproberts.museum.showcase
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -24,7 +22,6 @@ import java.io.IOException
 import java.lang.reflect.Method
 import kotlin.concurrent.thread
 import kotlin.math.absoluteValue
-import android.graphics.DashPathEffect
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
@@ -198,13 +195,23 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
     private fun selectedExhibits() = if (filter.isEmpty()) {
         exhibits
     } else {
-        val lowercaseFilter = filter.toLowerCase()
+        var filtered = exhibits
 
-        exhibits.filter { exhibit ->
-            exhibit.title.toLowerCase().indexOf(lowercaseFilter) >= 0
-                    || exhibit.pathComponents.firstOrNull { it.toLowerCase().startsWith(lowercaseFilter) } != null
-                    || exhibit.tags.firstOrNull { it.toLowerCase().startsWith(lowercaseFilter) } != null
+        filter.toLowerCase().split(" ").forEach { lowercaseFilter ->
+            if (lowercaseFilter.isNotBlank()) {
+                filtered = filtered.filter { exhibit ->
+                    exhibit.title.toLowerCase().indexOf(lowercaseFilter) >= 0
+                            || exhibit.pathComponents.firstOrNull {
+                        it.toLowerCase().startsWith(lowercaseFilter)
+                    } != null
+                            || exhibit.tags.firstOrNull {
+                        it.toLowerCase().startsWith(lowercaseFilter)
+                    } != null
+                }
+            }
         }
+
+        filtered
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.context)
@@ -218,6 +225,7 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
     inner class ViewHolder(context: Context) : RecyclerView.ViewHolder(LinearLayout(context)) {
         private lateinit var exhibit: ExhibitWrapper
         private val root = (itemView as LinearLayout).also {
+            it.setBackgroundColor(0xffffffff.toInt())
             it.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             it.orientation = LinearLayout.VERTICAL
         }
@@ -264,20 +272,17 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
             titleSection.addView(it, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
         }
         private val wrapperBackground = FrameLayout(context).also {
-            it.setBackgroundColor(context.resources.getColor(R.color.exhibit_background))
             it.setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
 
-            root.addView(it, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).also {
-                it.topMargin = 8.dpToPx
-                it.bottomMargin = 8.dpToPx
+            root.addView(it, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        }
+        private val divider = View(context).also {
+            it.setBackgroundColor(context.resources.getColor(R.color.exhibit_outline))
 
-                it.gravity = Gravity.CENTER
-            })
+            root.addView(it, LinearLayout.LayoutParams(MATCH_PARENT, 0.5f.dpToPx))
         }
         private val wrapper = HighlightFrameLayout(context).also {
-            wrapperBackground.addView(it, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).also {
-                it.gravity = Gravity.CENTER
-            })
+            wrapperBackground.addView(it, FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
         }
 
         fun bind(exhibit: ExhibitWrapper) {
