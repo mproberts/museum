@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="title_text">#202020</color>
+    <color name="descriptiopn_text">#a0a0a0</color>
+    <color name="crumb_text">#a0a0a0</color>
+    <color name="crumb_divider">#d0d0d0</color>
+    <color name="exhibit_background">#f4f4f4</color>
+    <color name="exhibit_outline">#c0c0c0</color>
+</resources>
