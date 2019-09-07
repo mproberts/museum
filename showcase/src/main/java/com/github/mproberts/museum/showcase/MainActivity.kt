@@ -340,8 +340,8 @@ class HighlightFrameLayout(context: Context) : FrameLayout(context) {
 
     private val borderPaint = Paint().also {
         it.color = context.resources.getColor(R.color.exhibit_outline)
-        it.strokeWidth = 1f
-        it.pathEffect = DashPathEffect(floatArrayOf(10f, 20f), 0f)
+        it.strokeWidth = 1f.dpToPx.toFloat()
+        it.pathEffect = DashPathEffect(floatArrayOf(1f.dpToPx.toFloat(), 2f.dpToPx.toFloat()), 0f)
         it.style = Paint.Style.STROKE
     }
 
@@ -349,7 +349,7 @@ class HighlightFrameLayout(context: Context) : FrameLayout(context) {
         val rect = Rect()
 
         child.getDrawingRect(rect)
-        rect.inset(1, 1)
+        rect.inset(0.75f.dpToPx, 0.75f.dpToPx)
 
         canvas.drawRect(rect, borderPaint)
 
