@@ -47,12 +47,12 @@ data class ExhibitWrapper(
     val sortKey = pathComponents.joinToString("/").toLowerCase() + title.toLowerCase()
 }
 
-class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Adapter<ExhibitRecyclerViewAdapter.ViewHolder>() {
+open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Adapter<ExhibitRecyclerViewAdapter.ViewHolder>() {
 
     private var exhibits = emptyList<ExhibitWrapper>()
     private var filter = ""
 
-    private fun enumerateExhibitMethods(): List<Method> = try {
+    protected fun enumerateExhibitMethods(): List<Method> = try {
         val discoveredClasses = mutableSetOf<Class<*>>()
         val classLoader = context.classLoader
         val df = DexFile(context.packageCodePath)
@@ -347,7 +347,7 @@ class HighlightFrameLayout(context: Context) : FrameLayout(context) {
     }
 }
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
