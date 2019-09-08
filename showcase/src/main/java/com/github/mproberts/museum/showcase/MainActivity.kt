@@ -309,6 +309,7 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
             "android",
             "java",
             "com.google",
+            "com.android",
             "org.intellij",
             "kotlin",
             "com.github.bumptech"
