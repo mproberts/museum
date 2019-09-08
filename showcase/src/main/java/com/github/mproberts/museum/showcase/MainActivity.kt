@@ -25,32 +25,8 @@ import kotlin.math.absoluteValue
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.EditText
-
-@Exhibit("My Awesome View", "Text", ["Text"], "This is the story of a girl, who cried a river and drowned the whole world")
-fun myAwesomeView(parent: ViewGroup) = TextView(parent.context)
-    .also {
-        it.text = "This is a test"
-        it.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-            parent.context.resources.getDimensionPixelSize(R.dimen.title_text_size).toFloat()
-        )
-        it.setTextColor(0xff000000.toInt())
-        parent.addView(it)
-    }
-
-@Exhibit("Dark Titlebar", "Titlebars", ["Titlebar", "Dark"])
-fun myAwesomeView2(parent: ViewGroup) = TextView(parent.context)
-    .also {
-        it.text = "This is a test"
-        parent.addView(it)
-    }
-
-@Exhibit("Light Titlebar", "Titlebars", ["Titlebar", "Light"], "This is the story of a girl, who cried a river and drowned the whole world")
-fun myAwesomeView3(parent: ViewGroup) = TextView(parent.context)
-    .also {
-        it.text = "This is a test"
-        parent.addView(it)
-    }
 
 private var globalDensity: Float = 0f
 
@@ -81,6 +57,8 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
         val classLoader = context.classLoader
         val df = DexFile(context.packageCodePath)
 
+        Log.d("MUSEUM", context.packageCodePath)
+
         for (entry in df.entries().asSequence()) {
             val shouldInclude = skipPrefices.find { prefix -> entry.startsWith(prefix) } == null
             val loadedClass = if (shouldInclude) {
@@ -92,6 +70,8 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
             } else {
                 null
             } ?: continue
+
+            Log.d("MUSEUM", entry)
 
             val searchList = mutableListOf(loadedClass)
 
