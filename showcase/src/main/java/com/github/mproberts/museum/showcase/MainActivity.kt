@@ -58,31 +58,39 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
         val df = DexFile(context.packageCodePath)
 
         Log.d("MUSEUM", context.packageCodePath)
+        val entries = df.entries().toList()
 
-        for (entry in df.entries().asSequence()) {
-            val shouldInclude = skipPrefices.find { prefix -> entry.startsWith(prefix) } == null
-            val loadedClass = if (shouldInclude) {
-                try {
-                    classLoader.loadClass(entry)
-                } catch (ex: Throwable) {
+        Log.d("MUSEUM", "sze=${entries.size}")
+
+        for (entry in entries) {
+            try {
+                val shouldInclude = skipPrefices.find { prefix -> entry.startsWith(prefix) } == null
+                val loadedClass = if (shouldInclude) {
+                    try {
+                        classLoader.loadClass(entry)
+                    } catch (ex: Throwable) {
+                        Log.e("MUSEUM", "loader error", ex)
+                        null
+                    }
+                } else {
                     null
+                } ?: continue
+
+                Log.d("MUSEUM", entry)
+
+                val searchList = mutableListOf(loadedClass)
+
+                while (searchList.isNotEmpty()) {
+                    val classLookup = searchList.removeAt(0)
+
+                    if (!discoveredClasses.contains(classLookup)) {
+                        discoveredClasses.add(classLookup)
+
+                        searchList.addAll(classLookup.classes)
+                    }
                 }
-            } else {
-                null
-            } ?: continue
-
-            Log.d("MUSEUM", entry)
-
-            val searchList = mutableListOf(loadedClass)
-
-            while (searchList.isNotEmpty()) {
-                val classLookup = searchList.removeAt(0)
-
-                if (!discoveredClasses.contains(classLookup)) {
-                    discoveredClasses.add(classLookup)
-
-                    searchList.addAll(classLookup.classes)
-                }
+            } catch (ex: Throwable) {
+                Log.e("MUSEUM", "big error", ex)
             }
         }
 
@@ -311,6 +319,7 @@ class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Ada
             "com.google",
             "com.android",
             "org.intellij",
+            "org.jetbrains",
             "kotlin",
             "com.github.bumptech"
         )
