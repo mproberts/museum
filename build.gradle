@@ -20,6 +20,13 @@ buildscript {
     }
 }
 
+ext {
+    libVersionCode = 1
+    libVersionName = '0.0.1'
+}
+
+version = ext.libVersionName
+
 allprojects {
     repositories {
         google()
@@ -27,26 +34,6 @@ allprojects {
         maven {
             url "https://jitpack.io"
         }
-    }
-}
-
-configure([project(':annotations')]) {
-    apply plugin: 'maven-publish'
-    apply plugin: 'java'
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
     }
 }
 
