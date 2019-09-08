@@ -52,7 +52,7 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
     private var exhibits = emptyList<ExhibitWrapper>()
     private var filter = ""
 
-    protected fun enumerateExhibitMethods(): List<Method> = try {
+    protected open fun enumerateExhibitMethods(): List<Method> = try {
         val discoveredClasses = mutableSetOf<Class<*>>()
         val classLoader = context.classLoader
         val df = DexFile(context.packageCodePath)
@@ -349,6 +349,10 @@ class HighlightFrameLayout(context: Context) : FrameLayout(context) {
 
 open class MainActivity : AppCompatActivity() {
 
+    open fun createAdapter(): ExhibitRecyclerViewAdapter {
+        return ExhibitRecyclerViewAdapter(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -357,7 +361,7 @@ open class MainActivity : AppCompatActivity() {
         val root = LinearLayout(this).also {
             it.orientation = LinearLayout.VERTICAL
         }
-        val exhibitAdapter = ExhibitRecyclerViewAdapter(this)
+        val exhibitAdapter = createAdapter()
         val recyclerView = RecyclerView(this)
 
         val searchTextWrapper = FrameLayout(this).also {
