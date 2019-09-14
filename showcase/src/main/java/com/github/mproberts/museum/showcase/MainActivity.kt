@@ -27,6 +27,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
+import java.lang.reflect.InvocationTargetException
 
 private var globalDensity: Float = 0f
 
@@ -42,7 +43,8 @@ data class ExhibitWrapper(
     val pathComponents: List<String>,
     val tags: List<String>,
     val method: Method,
-    val description: String
+    val description: String,
+    val backgroundColor: Int
 ) {
     val sortKey = pathComponents.joinToString("/").toLowerCase() + title.toLowerCase()
 }
@@ -120,7 +122,8 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
                     annotation.path.split("/"),
                     annotation.tags.asList(),
                     method,
-                    annotation.description
+                    annotation.description,
+                    annotation.backgroundColor
                 )
             })
         }
@@ -308,7 +311,22 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
 
             wrapper.removeAllViews()
 
-            exhibit.method.invoke(null, wrapper)
+            wrapper.clipToPadding = false
+            wrapper.clipChildren = false
+
+            (wrapper.parent as ViewGroup).clipToPadding = false
+            (wrapper.parent as ViewGroup).clipChildren = false
+            (wrapper.parent as ViewGroup).setBackgroundColor(exhibit.backgroundColor)
+
+            try {
+                val view = exhibit.method.invoke(null, wrapper) as View?
+
+                if (view != null && view.parent == null) {
+                    wrapper.addView(view)
+                }
+            } catch (ex: InvocationTargetException) {
+                throw ex.targetException
+            }
         }
     }
 
