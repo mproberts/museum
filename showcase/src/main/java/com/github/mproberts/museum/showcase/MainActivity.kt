@@ -46,10 +46,10 @@ data class ExhibitWrapper(
     val description: String,
     val backgroundColor: Int
 ) {
-    val sortKey = pathComponents.joinToString("/").toLowerCase() + title.toLowerCase()
+    val sortKey = pathComponents.joinToString("/").toLowerCase() + "/" + title.toLowerCase()
 }
 
-open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerView.Adapter<ExhibitRecyclerViewAdapter.ViewHolder>() {
+open class ExhibitRecyclerViewAdapter(private val context: Context, private val backgroundColor: Int, private val primaryTextColor: Int, private val secondaryTextColor: Int): RecyclerView.Adapter<ExhibitRecyclerViewAdapter.ViewHolder>() {
 
     private var exhibits = emptyList<ExhibitWrapper>()
     private var filter = ""
@@ -216,7 +216,7 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
     inner class ViewHolder(context: Context) : RecyclerView.ViewHolder(LinearLayout(context)) {
         private lateinit var exhibit: ExhibitWrapper
         private val root = (itemView as LinearLayout).also {
-            it.setBackgroundColor(0xffffffff.toInt())
+            it.setBackgroundColor(backgroundColor)
             it.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             it.orientation = LinearLayout.VERTICAL
         }
@@ -237,7 +237,7 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
                 TypedValue.COMPLEX_UNIT_PX,
                 context.resources.getDimensionPixelSize(R.dimen.description_text_size).toFloat()
             )
-            it.setTextColor(context.resources.getColor(R.color.descriptiopn_text))
+            it.setTextColor(secondaryTextColor)
 
             root.addView(it, LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).also {
                 it.topMargin = 8.dpToPx
@@ -258,7 +258,7 @@ open class ExhibitRecyclerViewAdapter(private val context: Context): RecyclerVie
                 TypedValue.COMPLEX_UNIT_PX,
                 context.resources.getDimensionPixelSize(R.dimen.title_text_size).toFloat()
             )
-            it.setTextColor(context.resources.getColor(R.color.title_text))
+            it.setTextColor(primaryTextColor)
 
             titleSection.addView(it, LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
         }
@@ -352,23 +352,27 @@ class HighlightFrameLayout(context: Context) : FrameLayout(context) {
         it.pathEffect = DashPathEffect(floatArrayOf(1f.dpToPx.toFloat(), 2f.dpToPx.toFloat()), 0f)
         it.style = Paint.Style.STROKE
     }
-
-    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
-        val rect = Rect()
-
-        child.getDrawingRect(rect)
-        rect.inset(0.75f.dpToPx, 0.75f.dpToPx)
-
-        canvas.drawRect(rect, borderPaint)
-
-        return super.drawChild(canvas, child, drawingTime)
-    }
+//
+//    override fun drawChild(canvas: Canvas, child: View, drawingTime: Long): Boolean {
+//        val rect = Rect()
+//
+//        child.getDrawingRect(rect)
+//        rect.inset(0.75f.dpToPx, 0.75f.dpToPx)
+//
+//        canvas.drawRect(rect, borderPaint)
+//
+//        return super.drawChild(canvas, child, drawingTime)
+//    }
 }
 
 open class MainActivity : AppCompatActivity() {
 
+    open protected val backgroundColor: Int = 0xffffffff.toInt()
+    open protected val primaryTextColor: Int = 0xff000000.toInt()
+    open protected val secondaryTextColor: Int = 0xffa0a0a0.toInt()
+
     open fun createAdapter(): ExhibitRecyclerViewAdapter {
-        return ExhibitRecyclerViewAdapter(applicationContext)
+        return ExhibitRecyclerViewAdapter(applicationContext, backgroundColor, primaryTextColor, secondaryTextColor)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -384,7 +388,7 @@ open class MainActivity : AppCompatActivity() {
 
         val searchTextWrapper = FrameLayout(this).also {
             it.setPadding(8.dpToPx, 8.dpToPx, 8.dpToPx, 8.dpToPx)
-            it.setBackgroundColor(0xffffffff.toInt())
+            it.setBackgroundColor(backgroundColor)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 it.elevation = 10f
                 it.translationZ = 10f
@@ -393,6 +397,8 @@ open class MainActivity : AppCompatActivity() {
         val searchText = EditText(this).also {
             it.background = null
             it.hint = "Search by title or tags"
+            it.setTextColor(primaryTextColor)
+            it.setHintTextColor(secondaryTextColor)
             it.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(text: Editable?) {
                     exhibitAdapter.updateFilter(text?.toString() ?: "")
